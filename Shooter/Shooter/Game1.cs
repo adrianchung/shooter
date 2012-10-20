@@ -10,6 +10,19 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Input.Touch;
 
+/**
+ * Just in case I forget, I need to remember how to get stuff working.
+ * 
+ * - Define member variables for your game
+ * - Initialize them in the Initialize() method
+ * - Load the sprites in the LoadContent() method
+ * - Update them in the Update() game loop
+ * 
+ * May need to create objects as necessary.
+ * The parallaxing background is a technique used to show a moving background. The sprites loop in circles in a circular array
+ * to appear as if it's continually moving.
+ */
+
 namespace Shooter
 {
     /// <summary>
