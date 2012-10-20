@@ -45,6 +45,20 @@ namespace Shooter
         Texture2D explosionTexture;
         List<Animation> explosions;
 
+        // The sound that is played when a laser is fired
+        SoundEffect laserSound;
+
+        // The sound used when the player or an enemy dies
+        SoundEffect explosionSound;
+
+        // The music played during gameplay
+        Song gameplayMusic;
+
+        //Number that holds the player score
+        int score;
+        // The font used to display UI elements
+        SpriteFont font;
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -78,6 +92,9 @@ namespace Shooter
         {
             // TODO: Add your initialization logic here
             explosions = new List<Animation>();
+
+            //Set player's score to zero
+            score = 0;
 
             projectiles = new List<Projectile>();
 
@@ -123,6 +140,19 @@ namespace Shooter
             enemyTexture = Content.Load<Texture2D>("mineAnimation");
             projectileTexture = Content.Load<Texture2D>("laser");
             explosionTexture = Content.Load<Texture2D>("explosion");
+
+            // Load the music
+            gameplayMusic = Content.Load<Song>("sound/gameMusic");
+
+            // Load the laser and explosion sound effect
+            laserSound = Content.Load<SoundEffect>("sound/laserFire");
+            explosionSound = Content.Load<SoundEffect>("sound/explosion");
+
+            // Start the music right away
+            PlayMusic(gameplayMusic);
+
+            // Load the score font
+            font = Content.Load<SpriteFont>("gameFont");
 
             mainBackground = Content.Load<Texture2D>("mainbackground");
 
@@ -237,6 +267,12 @@ namespace Shooter
                     {
                         // Add an explosion
                         AddExplosion(enemies[i].Position);
+
+                        // Play the explosion sound
+                        explosionSound.Play();
+
+                        //Add to the player's score
+                        score += enemies[i].Value;
                     }
                     enemies.RemoveAt(i);
                 }
@@ -295,6 +331,16 @@ namespace Shooter
 
                 // Add the projectile, but add it to the front and center of the player
                 AddProjectile(player.Position + new Vector2(player.Width / 2, 0));
+
+                // Play the laser sound
+                laserSound.Play();
+            }
+
+            // reset score if player health goes to zero
+            if (player.Health <= 0)
+            {
+                player.Health = 100;
+                score = 0;
             }
         }
 
@@ -334,6 +380,11 @@ namespace Shooter
             {
                 explosions[i].Draw(spriteBatch);
             }
+
+            // Draw the score
+            spriteBatch.DrawString(font, "score: " + score, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y), Color.White);
+            // Draw the player health
+            spriteBatch.DrawString(font, "health: " + player.Health, new Vector2(GraphicsDevice.Viewport.TitleSafeArea.X, GraphicsDevice.Viewport.TitleSafeArea.Y + 30), Color.White);
 
             // Draw the Player
             player.Draw(spriteBatch);
@@ -446,6 +497,21 @@ namespace Shooter
                     explosions.RemoveAt(i);
                 }
             }
+        }
+
+        private void PlayMusic(Song song)
+        {
+            // Due to the way the MediaPlayer plays music,
+            // we have to catch the exception. Music will play when the game is not tethered
+            try
+            {
+                // Play the music
+                MediaPlayer.Play(song);
+
+                // Loop the currently playing song
+                MediaPlayer.IsRepeating = true;
+            }
+            catch { }
         }
     }
 }
