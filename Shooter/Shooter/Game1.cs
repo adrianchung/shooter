@@ -42,6 +42,9 @@ namespace Shooter
         TimeSpan fireTime;
         TimeSpan previousFireTime;
 
+        Texture2D explosionTexture;
+        List<Animation> explosions;
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -74,6 +77,8 @@ namespace Shooter
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            explosions = new List<Animation>();
+
             projectiles = new List<Projectile>();
 
             // Set the laser to fire every quarter second
@@ -117,6 +122,7 @@ namespace Shooter
             bgLayer2.Initialize(Content, "bgLayer2", GraphicsDevice.Viewport.Width, -2);
             enemyTexture = Content.Load<Texture2D>("mineAnimation");
             projectileTexture = Content.Load<Texture2D>("laser");
+            explosionTexture = Content.Load<Texture2D>("explosion");
 
             mainBackground = Content.Load<Texture2D>("mainbackground");
 
@@ -171,6 +177,9 @@ namespace Shooter
             // Update the projectiles
             UpdateProjectiles();
 
+            // Update the explosions
+            UpdateExplosions(gameTime);
+
             // Save the previous state of the keyboard and game pad so we can determinesingle key/button presses
             previousGamePadState = currentGamePadState;
             previousKeyboardState = currentKeyboardState;
@@ -223,6 +232,12 @@ namespace Shooter
 
                 if (enemies[i].Active == false)
                 {
+                    // If not active and health <= 0
+                    if (enemies[i].Health <= 0)
+                    {
+                        // Add an explosion
+                        AddExplosion(enemies[i].Position);
+                    }
                     enemies.RemoveAt(i);
                 }
             }
@@ -312,6 +327,12 @@ namespace Shooter
             for (int i = 0; i < projectiles.Count; i++)
             {
                 projectiles[i].Draw(spriteBatch);
+            }
+
+            // Draw the explosions
+            for (int i = 0; i < explosions.Count; i++)
+            {
+                explosions[i].Draw(spriteBatch);
             }
 
             // Draw the Player
@@ -404,6 +425,25 @@ namespace Shooter
                 if (projectiles[i].Active == false)
                 {
                     projectiles.RemoveAt(i);
+                }
+            }
+        }
+
+        private void AddExplosion(Vector2 position)
+        {
+            Animation explosion = new Animation();
+            explosion.Initialize(explosionTexture, position, 134, 134, 12, 45, Color.White, 1f, false);
+            explosions.Add(explosion);
+        }
+
+        private void UpdateExplosions(GameTime gameTime)
+        {
+            for (int i = explosions.Count - 1; i >= 0; i--)
+            {
+                explosions[i].Update(gameTime);
+                if (explosions[i].Active == false)
+                {
+                    explosions.RemoveAt(i);
                 }
             }
         }
